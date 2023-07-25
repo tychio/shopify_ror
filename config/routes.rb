@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
-  get 'shopify/login'
+  root 'shopify#index'
+  get 'shopify/index'
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
-  root 'shopify#login'
+
+  get 'shopify/auth'
+  get 'shopify/callback'
 end

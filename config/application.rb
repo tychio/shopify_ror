@@ -10,6 +10,7 @@ module Shopify
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.1
+    config.autoload_paths << Rails.root.join("lib")
 
     # Configuration for the application, engines, and railties goes here.
     #
@@ -18,5 +19,22 @@ module Shopify
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    
+    config.before_configuration do
+      env_file = File.join(Rails.root, 'config', 'local_env.yml')
+      YAML.load(File.open(env_file)).each do |key, value|
+        ENV[key.to_s] = value
+      end if File.exists?(env_file)
+    end
+
+    ShopifyAPI::Context.setup(
+      api_key: ENV["SHOPIFY_API_KEY"],
+      api_secret_key: ENV["SHOPIFY_API_SECRET"],
+      host: ENV["SHOPIFY_HOST"],
+      scope: "read_orders,read_products,read_product_listings",
+      is_embedded: true, # Set to true if you are building an embedded app
+      api_version: "2022-01", # The version of the API you would like to use
+      is_private: false, # Set to true if you have an existing private app
+    )
   end
 end
