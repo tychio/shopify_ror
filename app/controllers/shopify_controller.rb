@@ -36,7 +36,7 @@ class ShopifyController < ApplicationController
       puts("OAuth complete! New access token: #{auth_result[:session].access_token}")
   
       head 307
-      response.set_header("Location", "index")
+      response.set_header("Location", "/")
     rescue => e
       puts(e.message)
       head 500
