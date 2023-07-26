@@ -36,6 +36,10 @@ const Shop = ({ orders, shop }) => {
   const [ startDate, setStartDate ] = useState(null)
   const [ endDate, setEndDate ] = useState(null)
 
+  const shopifyLogout = () => {
+    window.location.href = '/logout'
+  }
+
   const onSelect = (e, picker) => {
     const start = picker.startDate.format(DATE_FORMAT)
     const end = picker.endDate.format(DATE_FORMAT)
@@ -60,7 +64,8 @@ const Shop = ({ orders, shop }) => {
   return (
     <div className="container p-4">
       <h1 className="text-center mb-2">{ name }</h1>
-      {startDate && endDate && <div className="d-flex justify-content-end">
+      {startDate && endDate && <div className="d-flex justify-content-between">
+        <Button onClick={shopifyLogout}>Logout</Button>
         <DateRangePicker
           initialSettings={{ startDate, endDate }}
           onApply={onSelect}

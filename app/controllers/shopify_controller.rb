@@ -1,24 +1,29 @@
 class ShopifyController < ApplicationController
   def index
+    if session[:shopify]
+      redirect_to '/shop'
+    end
   end
 
   def show
+    if not session[:shopify]
+      redirect_to '/'
+    end
+
     start_date = params[:start]
     end_date = params[:end]
+    
+    shopify_service = ShopifyService.new
 
-    ShopifyAPI::Auth::Session.temp(
-      shop: session[:shopify]['shop'],
-      access_token: session[:shopify]['access_token']
-    ) do |session|
-      client = ShopifyAPI::Clients::Rest::Admin.new(
-        session: session
-      )
+    shopify_service.client(session[:shopify]) do |client|
       product_res = client.get(
         path: "products"
       )
+
       shop_res = client.get(
         path: "shop"
       )
+
       order_res = client.get(
         path: "orders",
         query: {
@@ -35,36 +40,29 @@ class ShopifyController < ApplicationController
     end
   end
 
-  def auth
-    auth_response = ShopifyAPI::Auth::Oauth.begin_auth(shop: ENV['SHOPIFY_SHOP'], redirect_path: "/shopify/callback")
+  def logout
+    if session[:shopify]
+      session[:shopify] = nil
+    end
+    redirect_to '/'
+  end
 
-    cookies[auth_response[:cookie].name] = {
-      expires: auth_response[:cookie].expires,
-      secure: true,
-      http_only: true,
-      value: auth_response[:cookie].value
-    }
+  def auth
+    shopify_service = ShopifyService.new
+    auth_route = shopify_service.auth(cookies)
 
     head 307
-    response.set_header("Location", auth_response[:auth_route])
+    response.set_header("Location", auth_route)
   end
 
   def callback
     begin
-      auth_result = ShopifyAPI::Auth::Oauth.validate_auth_callback(
-        cookies: cookies.to_h,
-        auth_query: ShopifyAPI::Auth::Oauth::AuthQuery.new(request.parameters.symbolize_keys.except(:controller, :action))
+      shopify_service = ShopifyService.new
+      session_json = shopify_service.callback(
+        request.parameters.symbolize_keys.except(:controller, :action),
+        cookies
       )
-
-      cookies[auth_result[:cookie].name] = {
-        expires: auth_result[:cookie].expires,
-        secure: true,
-        http_only: true,
-        value: auth_result[:cookie].value,
-      }
-
-      puts("OAuth complete! New access token: #{auth_result[:session].access_token}")
-      session[:shopify] = auth_result[:session].as_json
+      session[:shopify] = session_json
 
       head 307
       response.set_header("Location", "/shop")
