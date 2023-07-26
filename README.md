@@ -5,3 +5,9 @@
 ```
 rails s
 ```
+
+### HMR
+
+```
+bin/shakapacker -w
+```
