@@ -1,8 +1,34 @@
+import moment from "moment";
 import React, { useEffect, useState } from "react"
 import { Button, Table } from "react-bootstrap";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 
 const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
+
+const DateSpan = ({ value }) => {
+  return <span>{moment(value).format('YYYY, MMM DD')}</span>
+}
+
+const PaymentStatus = ({ value }) => {
+  let status = ''
+  if (value) {
+    status = value
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+  }
+  return <span>{status}</span>
+}
+
+const Tags = ({ value }) => {
+  let status = ''
+  if (value) {
+    status = value.split(',').map(tag => (
+      <span key={tag}>{tag.trim()}</span>
+    ))
+  }
+  return status
+}
 
 const Shop = ({ orders, shop }) => {
   const {name} = shop
@@ -47,7 +73,7 @@ const Shop = ({ orders, shop }) => {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Date</th>
+              <th width="120">Date</th>
               <th>Customer</th>
               <th>Amount</th>
               <th>Payment</th>
@@ -59,14 +85,18 @@ const Shop = ({ orders, shop }) => {
             {orders && orders.map(order => (
               <tr key={order.id}>
                 <td>{order.name}</td>
-                <td>{order.processed_at}</td>
+                <td>
+                  <DateSpan value={order.processed_at}></DateSpan>
+                </td>
                 <td>{order.shipping_address?.company}</td>
                 <td>{order.currency}{order.total_price}</td>
-                <td>{order.financial_status}</td>
+                <td>
+                  <PaymentStatus value={order.financial_status}></PaymentStatus>
+                </td>
                 <td>{order.shipping_lines.length > 0 ? order.shipping_lines[0].title : ''}</td>
-                <td>{order.tags.split(',').map(tag => (
-                  <span key={tag}>{tag.trim()}</span>
-                ))}</td>
+                <td>
+                  <Tags value={order.tags}></Tags>
+                </td>
               </tr>
             ))}
           </tbody>
