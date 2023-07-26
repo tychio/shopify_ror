@@ -2,9 +2,11 @@ class ShopifyController < ApplicationController
   def index
   end
 
+  def show
+  end
+
   def auth
-    # shop = request.headers["Shop"]
-    shop = 'testtychio.myshopify.com'
+    shop = request.parameters["s"]
 
     auth_response = ShopifyAPI::Auth::Oauth.begin_auth(shop: shop, redirect_path: "/shopify/callback")
 
@@ -25,18 +27,19 @@ class ShopifyController < ApplicationController
         cookies: cookies.to_h,
         auth_query: ShopifyAPI::Auth::Oauth::AuthQuery.new(request.parameters.symbolize_keys.except(:controller, :action))
       )
-  
+
       cookies[auth_result[:cookie].name] = {
         expires: auth_result[:cookie].expires,
         secure: true,
         http_only: true,
-        value: auth_result[:cookie].value
+        value: auth_result[:cookie].value,
       }
-  
+
+      puts(auth_result[:session].as_json)
       puts("OAuth complete! New access token: #{auth_result[:session].access_token}")
-  
+
       head 307
-      response.set_header("Location", "/")
+      response.set_header("Location", "/shop/" + auth_result[:session].shop.split('.').first)
     rescue => e
       puts(e.message)
       head 500
