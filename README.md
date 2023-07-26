@@ -1,9 +1,19 @@
 # Develoment
 
+### Install
+
+```
+bin/bundle install
+```
+
+```
+yarn install
+```
+
 ### Start Dev Server
 
 ```
-rails s
+bin/rails s
 ```
 
 ### HMR
