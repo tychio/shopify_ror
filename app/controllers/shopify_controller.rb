@@ -3,6 +3,9 @@ class ShopifyController < ApplicationController
   end
 
   def show
+    start_date = params[:start]
+    end_date = params[:end]
+
     ShopifyAPI::Auth::Session.temp(
       shop: session[:shopify]['shop'],
       access_token: session[:shopify]['access_token']
@@ -17,7 +20,11 @@ class ShopifyController < ApplicationController
         path: "shop"
       )
       order_res = client.get(
-        path: "orders"
+        path: "orders",
+        query: {
+          processed_at_min: start_date,
+          processed_at_max: end_date,
+        }
       )
 
       render locals: {
