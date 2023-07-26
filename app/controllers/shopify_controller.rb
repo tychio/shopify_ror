@@ -3,12 +3,22 @@ class ShopifyController < ApplicationController
   end
 
   def show
+    ShopifyAPI::Auth::Session.temp(
+      shop: session[:shopify]['shop'],
+      access_token: session[:shopify]['access_token']
+    ) do |session|
+      client = ShopifyAPI::Clients::Rest::Admin.new(
+        session: session
+      )
+      response = client.get(
+        path: "products"
+      )
+      render locals: { products: response.body['products'] }
+    end
   end
 
   def auth
-    shop = request.parameters["s"]
-
-    auth_response = ShopifyAPI::Auth::Oauth.begin_auth(shop: shop, redirect_path: "/shopify/callback")
+    auth_response = ShopifyAPI::Auth::Oauth.begin_auth(shop: ENV['SHOPIFY_SHOP'], redirect_path: "/shopify/callback")
 
     cookies[auth_response[:cookie].name] = {
       expires: auth_response[:cookie].expires,
@@ -35,11 +45,11 @@ class ShopifyController < ApplicationController
         value: auth_result[:cookie].value,
       }
 
-      puts(auth_result[:session].as_json)
       puts("OAuth complete! New access token: #{auth_result[:session].access_token}")
+      session[:shopify] = auth_result[:session].as_json
 
       head 307
-      response.set_header("Location", "/shop/" + auth_result[:session].shop.split('.').first)
+      response.set_header("Location", "/shop")
     rescue => e
       puts(e.message)
       head 500
