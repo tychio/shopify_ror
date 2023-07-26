@@ -10,10 +10,21 @@ class ShopifyController < ApplicationController
       client = ShopifyAPI::Clients::Rest::Admin.new(
         session: session
       )
-      response = client.get(
+      product_res = client.get(
         path: "products"
       )
-      render locals: { products: response.body['products'] }
+      shop_res = client.get(
+        path: "shop"
+      )
+      order_res = client.get(
+        path: "orders"
+      )
+
+      render locals: {
+        shop: shop_res.body['shop'],
+        orders: order_res.body['orders'],
+        products: product_res.body['products']
+      }
     end
   end
 

@@ -1,32 +1,41 @@
 import React from "react"
-import { Card, CardGroup, Row } from "react-bootstrap"
+import { Table } from "react-bootstrap";
 
-const Product = ({ product }) => {
-  const { title, body_html, image } = product
-  return (
-    <div className="product">
-      <Card>
-        {image && <Card.Img variant="top" src={image.src} alt={image.alt} />}
-        <Card.Body>
-          <Card.Title>{title}</Card.Title>
-          <Card.Text>{body_html}
-          </Card.Text>
-        </Card.Body>
-      </Card>
-    </div>
-  )
-}
+const Shop = ({ orders, shop }) => {
+  const {name} = shop
 
-const Shop = ({ products }) => {
   return (
     <div className="container p-4">
-      <h1 className="text-center mb-2">Shopify Shop</h1>
+      <h1 className="text-center mb-2">{ name }</h1>
       <div className="container-fluid">
-        <CardGroup>
-          {products && products.map(product => (
-            <Product key={product.id} product={product}></Product>
-          ))}
-        </CardGroup>
+        <Table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Amount</th>
+              <th>Payment</th>
+              <th>Shipping</th>
+              <th>Tags</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders && orders.map(order => (
+              <tr key={order.id}>
+                <td>{order.name}</td>
+                <td>{order.processed_at}</td>
+                <td>{order.shipping_address?.company}</td>
+                <td>{order.currency}{order.total_price}</td>
+                <td>{order.financial_status}</td>
+                <td>{order.shipping_lines.length > 0 ? order.shipping_lines[0].title : ''}</td>
+                <td>{order.tags.split(',').map(tag => (
+                  <span key={tag}>{tag.trim()}</span>
+                ))}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       </div>
     </div>
   );

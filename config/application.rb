@@ -33,7 +33,7 @@ module Shopify
       host: ENV["SHOPIFY_HOST"],
       scope: "read_orders,read_products,read_product_listings",
       is_embedded: true, # Set to true if you are building an embedded app
-      api_version: "2022-01", # The version of the API you would like to use
+      api_version: "2023-07", # The version of the API you would like to use
       is_private: false, # Set to true if you have an existing private app
     )
   end
