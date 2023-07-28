@@ -30,7 +30,7 @@ class ShopifyService < ApplicationService
   def callback query, cookies
     auth_result = ShopifyAPI::Auth::Oauth.validate_auth_callback(
       cookies: cookies.to_h,
-      auth_query: ShopifyAPI::Auth::Oauth::AuthQuery.new(query)
+      auth_query: ShopifyAPI::Auth::Oauth::AuthQuery.new(**query)
     )
 
     cookies[auth_result[:cookie].name] = {
