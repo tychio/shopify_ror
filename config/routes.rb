@@ -5,6 +5,6 @@ Rails.application.routes.draw do
   get 'shop', to: 'shopify#show', as: 'shopify_show'
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
-  get 'shopify/auth'
+  get 'shopify/auth/:shop_name', to: 'shopify#auth', as: 'shopify_auth'
   get 'shopify/callback'
 end

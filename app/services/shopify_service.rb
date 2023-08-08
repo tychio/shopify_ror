@@ -14,8 +14,9 @@ class ShopifyService < ApplicationService
     end
   end
 
-  def auth cookies
-    auth_response = ShopifyAPI::Auth::Oauth.begin_auth(shop: ENV['SHOPIFY_SHOP'], redirect_path: "/shopify/callback")
+  def auth (cookies, shop_name)
+    shop_domain = shop_name.nil? ? ENV['SHOPIFY_SHOP'] : "#{shop_name}.myshopify.com" 
+    auth_response = ShopifyAPI::Auth::Oauth.begin_auth(shop: shop_domain, redirect_path: "/shopify/callback")
 
     cookies[auth_response[:cookie].name] = {
       expires: auth_response[:cookie].expires,

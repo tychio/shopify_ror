@@ -44,7 +44,7 @@ class ShopifyController < ApplicationController
   end
 
   def auth
-    auth_route = ShopifyService.auth(cookies)
+    auth_route = ShopifyService.auth(cookies, params["shop_name"])
 
     head 307
     response.set_header("Location", auth_route)
